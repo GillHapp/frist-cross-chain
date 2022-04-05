@@ -77,4 +77,45 @@ contract Exchange is ERC20 {
         ERC20(cryptoDevTokenAddress).transfer(msg.sender, cryptoDevTokenAmount);
         return (ethAmount, cryptoDevTokenAmount);
     }
+
+    // Calculate the amount of ETH/CryptoDev tokens that would be returned to the user in the swap
+    function getAmountOfTokens(uint256 inputAmount, uint256 inputReserve, uint256 outputReserve) public pure returns(uint256) {
+        require(inputReserve > 0 && outputReserve > 0, "Invalid provided input/output reserve");
+        uint256 inputAmountWithFee = (inputAmount * 99) / 100;
+
+        // Clever predetermined formula gives us the numerator and denominator for the swap
+        uint256 numerator = inputAmountWithFee * outputReserve;
+        uint256 denominator = inputReserve + inputAmountWithFee;
+        return numerator / denominator;
+    }
+
+    function ethToCryptoDevToken(uint _minTokens) public payable {
+        uint256 tokenReserve = getReserve();
+        // Call `getAmountOfTokens` to get the amount of crypto dev tokens that would be returned to the user after the swap
+        // The `inputReserve` we're sending is `address(this).balance - msg.value` instead of just `address(this).balance`
+        // because `address(this).balance` already contains the `msg.value` user has sent in this function call
+        uint256 tokensBought = getAmountOfTokens(
+            msg.value,
+            address(this).balance,
+            tokenReserve
+        );
+        require(tokensBought >= _minTokens, "Calculated token output does not meet provided minimum token amount");
+
+        // Finish the swap; ETH has already been sent to the contract in the function call
+        ERC20(cryptoDevTokenAddress).transfer(msg.sender, tokensBought);
+    }
+
+    function cryptoDevTokenToEther(uint256 _tokensSold, uint256 _minEth) public {
+        uint256 tokenReserve = getReserve();
+        uint256 ethBought = getAmountOfTokens(
+            _tokensSold,
+            tokenReserve,
+            address(this).balance
+        );
+        require(ethBought >= _minEth, "Calculated ETH output does not meet provided minimum ETH amount");
+
+        // Make the swap
+        ERC20(cryptoDevTokenAddress).transferFrom(msg.sender, address(this), _tokensSold);
+        payable(msg.sender).transfer(ethBought);
+    }
 }
