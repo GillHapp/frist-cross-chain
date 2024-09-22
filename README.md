@@ -4,7 +4,7 @@ Here’s an updated version of your README to reflect the changes:
 
 # Decentralised Finance - Automated Market Maker Project (DeFi-AMM)
 
-This project is part of the [LearnWeb3DAO Sophomore track](https://www.learnweb3.io/tracks/sophomore), focusing on building a decentralized finance (DeFi) exchange using the Equito cross-chain protocol. It allows owners of the CryptoDevs token to provide liquidity for an ETH <> CD Token swap.
+This project is focusing on building a decentralized finance (DeFi) exchange using the Equito cross-chain protocol. It allows owners of the CryptoDevs token to provide liquidity for an ETH <> CD Token swap.
 
 ## Features
 - **Liquidity Provision**: Users can add liquidity to the pool for ETH and CryptoDevs (CD) tokens. Liquidity providers are issued ERC-20 Liquidity Pool tokens, which represent their share of the pool.
